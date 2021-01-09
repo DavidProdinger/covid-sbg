@@ -126,10 +126,11 @@ class Overview extends Component {
         return (
             h('section', {},
                 h(DistrictNav, {showRelativeValues: props.showRelativeValues}),
-                h('img', {src: 'report/aktiv.png', id: 'sbgMap'}),
                 h(ModeNav, {district: props.district, showRelativeValues: props.showRelativeValues}),
                 h('h2', {}, props.showRelativeValues ? `Aktive Fälle pro 100.000 Einwohner pro Bezirk` : `Aktive Fälle pro Bezirk`),
                 h('canvas', {id: 'overview'}),
+                h('img', {src: 'report/aktiv.png', id: 'sbgMap'}),
+                h('div', {id: 'dataTable', dangerouslySetInnerHTML: {__html: this.props.table}}),
             )
         )
     }
@@ -139,10 +140,11 @@ class Main extends Component {
     componentDidMount() {
         Promise.all([
             fetch("./report/gesamt.json").then(response => response.json()),
-            fetch("./report/population.json").then(response => response.json())
-        ]).then(([timeseries, population]) => {
+            fetch("./report/population.json").then(response => response.json()),
+            fetch("./report/table.html").then(response => response.text()),
+        ]).then(([timeseries, population, table]) => {
             this.setState({
-                timeseries, population
+                timeseries, population, table
             });
         })
     }
@@ -159,8 +161,8 @@ class Main extends Component {
             h(Town, {path: '/district/:district/town/:town', timeseries: this.state.timeseries, population: this.state.population, showRelativeValues: false}),
             h(District, {path: '/district/:district', timeseries: this.state.timeseries, population: this.state.population, showRelativeValues: false}),
             h(District, {path: '/district/:district/relative', timeseries: this.state.timeseries, population: this.state.population, showRelativeValues: true}),
-            h(Overview, {path: '/relative', timeseries: this.state.timeseries, population: this.state.population, showRelativeValues: true}),
-            h(Overview, {default: true, timeseries: this.state.timeseries, population: this.state.population, showRelativeValues: false}),
+            h(Overview, {path: '/relative', timeseries: this.state.timeseries, population: this.state.population, table: this.state.table, showRelativeValues: true}),
+            h(Overview, {default: true, timeseries: this.state.timeseries, population: this.state.population, table: this.state.table, showRelativeValues: false}),
             )));
     }
 };
